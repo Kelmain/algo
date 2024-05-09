@@ -66,10 +66,11 @@ def selection_sort(arr):
         # loop through the array again
         for j in range(i+1, n):
             # if the current element is less than the minimum element, update the minimum element
-            min_idx = j
+            if arr[j] < arr[min_idx]:
+                min_idx = j
         # swap the minimum element with the element at the beginning
-            arr[min_idx], arr[i] = arr[i], arr[min_idx]
-            yield arr
+        arr[min_idx], arr[i] = arr[i], arr[min_idx]
+        yield arr
 
 # * insertion sort
 def insertion_sort(arr):
@@ -97,6 +98,7 @@ def insertion_sort(arr):
         yield arr
 
 # * merge sort
+# FIXME: the algorithm looks not right
 def merge_sort(arr):
     """
     The merge sort algorithm is a divide and conquer algorithm that splits the input into two halves, sorts them separately, and then merges them. 
@@ -104,43 +106,44 @@ def merge_sort(arr):
     """
     if len(arr) > 1:
         # get the middle index
-        mid = len(arr)//2
+        mid = len(arr) // 2
         # get the left half
-        l = arr[:mid]
+        left = arr[:mid]
         # get the right half
-        r = arr[mid:]
-        # recursively call the merge sort algorithm for the left half
-        merge_sort(l)
-        # recursively call the merge sort algorithm for the right half
-        merge_sort(r)
+        right = arr[mid:]
 
+        # recursively call the merge sort algorithm for the left half
+        yield from merge_sort(left)
+        # recursively call the merge sort algorithm for the right half
+        yield from merge_sort(right)
 
         i = j = k = 0
-        # Until we reach the end of either left or right half
-        while i < len(l) and j < len(r):
-            # If the current element in the left half is less than the current element in the right half,
-            # we add the current element in the left half to the array and increment the left half index
-            if l[i] < r[j]:
-                arr[k] = l[i]
+        # Merge the sorted halves
+        while i < len(left) and j < len(right):
+            if left[i] < right[j]:
+                arr[k] = left[i]
                 i += 1
             else:
-                arr[k] = r[j]
+                arr[k] = right[j]
                 j += 1
             k += 1
-        # While we have elements in the left half, we add them to the array
-        while i < len(l):
-            arr[k] = l[i]
+            yield arr
+
+        # Copy the remaining elements of left, if any
+        while i < len(left):
+            arr[k] = left[i]
             i += 1
             k += 1
-        # While we have elements in the right half, we add them to the array
-        while j < len(r):
-            arr[k] = r[j]
+            yield arr
+
+        # Copy the remaining elements of right, if any
+        while j < len(right):
+            arr[k] = right[j]
             j += 1
             k += 1
-
-        yield arr
+            yield arr
     else:
-        return arr
+        yield arr
 
 # * quick sort
 def partition(arr, low, high):
@@ -203,26 +206,32 @@ def bucket_sort(arr):
 # * heap sort
 
 
+
 def heap_sort(arr):
     """
     The heap sort algorithm is a comparison based sorting algorithm that works by dividing the input into a sorted and an unsorted region. 
     The algorithm is efficient for large lists.
     """
+    # Convert numpy array to list if necessary
+    if isinstance(arr, np.ndarray):
+        arr = arr.tolist()
+
     # if the array is empty, return the array
     if len(arr) == 0:
         return arr
-    # get the length of the array
+
+    # Transform list into a heap
+    heapq.heapify(arr)
     n = len(arr)
-    # create a max heap
-    for i in range(n//2 - 1, -1, -1):
-        heapq.heapify(arr, i, n)
-    # loop through the array
-    for i in range(n-1, 0, -1):
-        # swap the first element with the last element
-        arr[i], arr[0] = arr[0], arr[i]
-        # heapify the array
-        heapq.heapify(arr, i, 0)
-    yield arr
+    sorted_arr = []
+
+    # Extract elements one by one
+    for _ in range(n):
+        sorted_arr.append(heapq.heappop(arr))
+        yield sorted_arr + arr  # This yields the current state of the sorted and unsorted parts
+
+
+
 
 
 # * ############## Algorithms for searching ##############
