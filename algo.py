@@ -3,11 +3,11 @@ import numpy as np
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import heapq
+import time
 
 
 
-# TODO: sorting algorithms: Bubble sort(nb), selectionn sort(nb), insertion sort(nb), merge sort(nb), quick sort(nb),bucket sort, heap sort(nb),
-# TODO: list search: linear search, binary search, hash search,
+
 # TODO: graph search: breadth-first search, depth-first search, bellman-ford, dijkstra, A* algorithm
 # TODO: tree search: BST, AVL, RB, B-Tree, Heap
 # TODO: try to creating graphs to visualize the algorithms
@@ -19,6 +19,12 @@ def generate_random_list(n):
     Generate a random list of n elements
     """
     return np.random.randint(0, 100, n)
+
+
+
+
+# * ############## Algorithms for sorting ##############
+# TODO: sorting algorithms: Bubble sort(nb), selectionn sort(nb), insertion sort(nb), merge sort(nb), quick sort(nb),bucket sort, heap sort(nb),
 
 
 
@@ -40,7 +46,7 @@ def bubble_sort(arr):
             # if the current element is greater than the next element, swap them
             if arr[j] > arr[j+1]:
                 arr[j], arr[j+1] = arr[j+1], arr[j]
-    return arr
+                yield arr
 
 # * selection sort
 def selection_sort(arr):
@@ -62,8 +68,8 @@ def selection_sort(arr):
             # if the current element is less than the minimum element, update the minimum element
             min_idx = j
         # swap the minimum element with the element at the beginning
-        arr[min_idx], arr[i] = arr[i], arr[min_idx]
-    return arr
+            arr[min_idx], arr[i] = arr[i], arr[min_idx]
+            yield arr
 
 # * insertion sort
 def insertion_sort(arr):
@@ -88,7 +94,7 @@ def insertion_sort(arr):
             j -= 1
         # insert the current element at the right position
         arr[j+1] = key
-    return arr
+        yield arr
 
 # * merge sort
 def merge_sort(arr):
@@ -132,52 +138,39 @@ def merge_sort(arr):
             j += 1
             k += 1
 
-        return arr
+        yield arr
     else:
         return arr
 
 # * quick sort
 def partition(arr, low, high):
-    """
-    Partition the array into two halves
-    """
-    # get the pivot element
-    pivot = arr[low]
-    # get the index of the pivot element
-    i = low + 1
-    # get the index of the last element
-    j = high
-    # while i is less than j
-    while i <= j:
-        # if the current element is less than the pivot, increment the index
-        if arr[i] < pivot:
+    pivot = arr[(low + high) // 2]  # Using middle element as pivot
+    i = low - 1
+    j = high + 1
+    while True:
+        i += 1
+        while arr[i] < pivot:
             i += 1
-        # if the current element is greater than the pivot, decrement the index
-        elif arr[j] > pivot:
+        j -= 1
+        while arr[j] > pivot:
             j -= 1
-        # else, swap the elements
-        else:
-            arr[i], arr[j] = arr[j], arr[i]
-            i += 1
-            j -= 1
-    return i
+        if i >= j:
+            return j
+        arr[i], arr[j] = arr[j], arr[i]
 
+def quick_sort(arr, low=0, high=None):
+    if high is None:
+        high = len(arr) - 1
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        yield from quick_sort(arr, low, pivot_index)
+        yield from quick_sort(arr, pivot_index + 1, high)
+        yield arr
 
-def quick_sort(arr):
-    """
-    The quick sort algorithm is a divide and conquer algorithm that works by selecting a pivot element from the array and partitioning the other elements into two sub-arrays, 
-    according to whether they are less than or greater than the pivot. The algorithm then recursively sorts the sub-arrays.
-    """
-    if len(arr) <= 1:
-        return arr
-    if len(arr) > 1:
-        # get the index of the pivot element
-        pivot = partition(arr, 0, len(arr)-1)
-        # recursively call the quick sort algorithm for the left half
-        quick_sort(arr[:pivot])
-        # recursively call the quick sort algorithm for the right half
-        quick_sort(arr[pivot:])
-    return arr
+# Example usage:
+# arr = [your array]
+# result = list(quick_sort(arr, 0, len(arr) - 1))
+        
 
 
 # * bucket sort (for floating point numbers)
@@ -229,5 +222,53 @@ def heap_sort(arr):
         arr[i], arr[0] = arr[0], arr[i]
         # heapify the array
         heapq.heapify(arr, i, 0)
-    return arr
+    yield arr
 
+
+# * ############## Algorithms for searching ##############
+
+# TODO: list search: linear search, binary search, hash search,
+
+
+
+
+# * ############## main function ##############
+
+def main():
+    st.title("Algorithms visualizer")
+    st.subheader("Sorting algorithms")
+    st.write("This is a visualizer for sorting algorithms")
+    st.write("You can select the algorithm you want to use and the size of the array")
+    st.write("You can also select the number of elements you want to sort")
+    n = st.slider("Number of elements", 1, 100, )
+    arr = generate_random_list(n)
+    
+
+    algo_choice = st.selectbox("Select algorithm", ["Bubble sort", "Selection sort", "Insertion sort", "Merge sort", "Quick sort",  "Heap sort"])
+    algo_dict = {
+        "Bubble sort": bubble_sort,
+        "Selection sort": selection_sort,
+        "Insertion sort": insertion_sort,
+        "Merge sort": merge_sort,
+        "Quick sort": quick_sort,
+        #"Bucket sort": bucket_sort,
+        "Heap sort": heap_sort
+    }
+
+
+    algorithm = algo_dict[algo_choice]
+    
+    
+    if st.button("Sort"):
+        st.write("Sorting...")
+        chart = st.empty()
+        for i in algorithm(arr):
+            fig = go.Figure(data=[go.Bar(x=np.arange(len(arr)), y=i, marker=dict(color=i, colorscale="Viridis"),
+                                         )])
+            chart.plotly_chart(fig)
+            
+            time.sleep(0.05)
+
+
+if __name__ == "__main__":
+    main()
