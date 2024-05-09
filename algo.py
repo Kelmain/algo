@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 
-# TODO: sorting algorithms: Bubble sort(nb), selectionn sort(nb), insertion sort(nb), merge sort(nb), quick sort(nb), heap sort(nb),
+# TODO: sorting algorithms: Bubble sort(nb), selectionn sort(nb), insertion sort(nb), merge sort(nb), quick sort(nb),bucket sort, heap sort(nb),
 # TODO: list search: linear search, binary search, hash search,
 # TODO: graph search: breadth-first search, depth-first search, bellman-ford, dijkstra, A* algorithm
 # TODO: tree search: BST, AVL, RB, B-Tree, Heap
@@ -177,3 +177,30 @@ def quick_sort(arr):
         # recursively call the quick sort algorithm for the right half
         quick_sort(arr[pivot:])
     return arr
+
+
+# * bucket sort (for floating point numbers)
+
+def bucket_sort(arr):
+    """
+    The bucket sort algorithm is a sorting algorithm that works by distributing the elements of an array into a number of buckets and then sorting the elements of each bucket individually. 
+    The algorithm is efficient for large lists of floating point numbers.
+    """
+    # if the array is empty, return the array
+    if len(arr) == 0:
+        return arr
+    # get the length of the array
+    n = len(arr)
+    # create an empty bucket for each element in the array
+    buckets = [[] for _ in range(n)]
+    # loop through the array
+    for i in range(n):
+        # get the index of the bucket
+        index = int(n * arr[i])
+        # add the element to the bucket
+        buckets[index].append(arr[i])
+    # sort the elements of each bucket
+    for i in range(n):
+        buckets[i] = quick_sort(buckets[i])
+    # concatenate the sorted buckets
+    return [item for sublist in buckets for item in sublist]
