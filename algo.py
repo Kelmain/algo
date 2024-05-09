@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
+import heapq
 
 
 
@@ -204,3 +205,29 @@ def bucket_sort(arr):
         buckets[i] = quick_sort(buckets[i])
     # concatenate the sorted buckets
     return [item for sublist in buckets for item in sublist]
+
+
+# * heap sort
+
+
+def heap_sort(arr):
+    """
+    The heap sort algorithm is a comparison based sorting algorithm that works by dividing the input into a sorted and an unsorted region. 
+    The algorithm is efficient for large lists.
+    """
+    # if the array is empty, return the array
+    if len(arr) == 0:
+        return arr
+    # get the length of the array
+    n = len(arr)
+    # create a max heap
+    for i in range(n//2 - 1, -1, -1):
+        heapq.heapify(arr, i, n)
+    # loop through the array
+    for i in range(n-1, 0, -1):
+        # swap the first element with the last element
+        arr[i], arr[0] = arr[0], arr[i]
+        # heapify the array
+        heapq.heapify(arr, i, 0)
+    return arr
+
