@@ -24,7 +24,7 @@ def generate_random_list(n):
 
 
 # * ############## Algorithms for sorting ##############
-# TODO: sorting algorithms: Bubble sort(nb), selectionn sort(nb), insertion sort(nb), merge sort(nb), quick sort(nb),bucket sort, heap sort(nb),
+
 
 
 
@@ -98,7 +98,7 @@ def insertion_sort(arr):
         yield arr
 
 # * merge sort
-# FIXME: the algorithm looks not right
+
 def merge_sort(arr):
     """
     The merge sort algorithm is a divide and conquer algorithm that splits the input into two halves, sorts them separately, and then merges them. 
@@ -147,6 +147,10 @@ def merge_sort(arr):
 
 # * quick sort
 def partition(arr, low, high):
+    """
+    The partition function is a helper function for the quick sort algorithm. 
+    It takes an array and two indices, low and high, and returns the index of the pivot element.
+    """
     pivot = arr[(low + high) // 2]  # Using middle element as pivot
     i = low - 1
     j = high + 1
@@ -162,6 +166,10 @@ def partition(arr, low, high):
         arr[i], arr[j] = arr[j], arr[i]
 
 def quick_sort(arr, low=0, high=None):
+    """
+    The quick sort algorithm is a divide and conquer algorithm that splits the input into two halves, sorts them separately, and then merges them. 
+    The algorithm is efficient for large lists.
+    """
     if high is None:
         high = len(arr) - 1
     if low < high:
@@ -170,10 +178,6 @@ def quick_sort(arr, low=0, high=None):
         yield from quick_sort(arr, pivot_index + 1, high)
         yield arr
 
-# Example usage:
-# arr = [your array]
-# result = list(quick_sort(arr, 0, len(arr) - 1))
-        
 
 
 # * bucket sort (for floating point numbers)
@@ -183,29 +187,31 @@ def bucket_sort(arr):
     The bucket sort algorithm is a sorting algorithm that works by distributing the elements of an array into a number of buckets and then sorting the elements of each bucket individually. 
     The algorithm is efficient for large lists of floating point numbers.
     """
-    # if the array is empty, return the array
     if len(arr) == 0:
         return arr
-    # get the length of the array
     n = len(arr)
-    # create an empty bucket for each element in the array
-    buckets = [[] for _ in range(n)]
-    # loop through the array
-    for i in range(n):
-        # get the index of the bucket
-        index = int(n * arr[i])
-        # add the element to the bucket
-        buckets[index].append(arr[i])
-    # sort the elements of each bucket
-    for i in range(n):
-        buckets[i] = quick_sort(buckets[i])
-    # concatenate the sorted buckets
-    return [item for sublist in buckets for item in sublist]
+    max_value = max(arr)
+    min_value = min(arr)
+    bucket_range = (max_value - min_value) / n
+    buckets = [[] for _ in range(n + 1)]
+
+    for i in arr:
+        index = int((i - min_value) / bucket_range)
+        if index == n:
+            index -= 1
+        buckets[index].append(i)
+        yield arr  # Yield the state after adding an element to a bucket
+
+    sorted_array = []
+    for bucket in buckets:
+        sorted_bucket = sorted(bucket)  # Using sorted for simplicity
+        sorted_array.extend(sorted_bucket)
+        yield sorted_array  # Yield the state after sorting each bucket
 
 
 # * heap sort
 
-
+# FIXME: check in place version
 
 def heap_sort(arr):
     """
@@ -238,6 +244,36 @@ def heap_sort(arr):
 
 # TODO: list search: linear search, binary search, hash search,
 
+#linear search
+
+
+def linear_search(arr, x):
+    """
+    The linear search algorithm is a simple searching algorithm that searches for an element in a list by going through the list one by one. 
+    The algorithm is efficient for small lists.
+    """
+    for index, value in enumerate(arr):
+        if value == x:
+            return index
+    return -1
+
+def binary_search(arr, x):
+    """
+    The binary search algorithm is a divide and conquer algorithm that splits the input into two halves, sorts them separately, and then merges them. 
+    The algorithm is efficient for large lists.
+    """
+    arr = sorted(arr)
+    low = 0
+    high = len(arr) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if arr[mid] == x:
+            return mid
+        elif arr[mid] < x:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
 
 
 
@@ -247,37 +283,29 @@ def main():
     st.title("Algorithms visualizer")
     st.subheader("Sorting algorithms")
     st.write("This is a visualizer for sorting algorithms")
-    st.write("You can select the algorithm you want to use and the size of the array")
-    st.write("You can also select the number of elements you want to sort")
-    n = st.slider("Number of elements", 1, 100, )
+    n = st.slider("Number of elements", 1, 100)
     arr = generate_random_list(n)
-    
 
-    algo_choice = st.selectbox("Select algorithm", ["Bubble sort", "Selection sort", "Insertion sort", "Merge sort", "Quick sort",  "Heap sort"])
+    algo_choice = st.selectbox("Select algorithm", ["Bubble sort", "Selection sort", "Insertion sort", "Merge sort", "Quick sort", "Heap sort", "Bucket sort"])
     algo_dict = {
         "Bubble sort": bubble_sort,
         "Selection sort": selection_sort,
         "Insertion sort": insertion_sort,
         "Merge sort": merge_sort,
         "Quick sort": quick_sort,
-        #"Bucket sort": bucket_sort,
-        "Heap sort": heap_sort
+        "Heap sort": heap_sort,
+        "Bucket sort": bucket_sort
     }
 
-
     algorithm = algo_dict[algo_choice]
-    
-    
+
     if st.button("Sort"):
         st.write("Sorting...")
         chart = st.empty()
         for i in algorithm(arr):
-            fig = go.Figure(data=[go.Bar(x=np.arange(len(arr)), y=i, marker=dict(color=i, colorscale="Viridis"),
-                                         )])
+            fig = go.Figure(data=[go.Bar(x=np.arange(len(i)), y=i, marker=dict(color=i, colorscale="Viridis"))])
             chart.plotly_chart(fig)
-            
             time.sleep(0.05)
-
 
 if __name__ == "__main__":
     main()
