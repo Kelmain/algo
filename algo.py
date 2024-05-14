@@ -8,7 +8,7 @@ import time
 
 
 
-# TODO: graph search: breadth-first search, depth-first search, bellman-ford, dijkstra, A* algorithm
+
 # TODO: tree search: BST, AVL, RB, B-Tree, Heap
 # TODO: try to creating graphs to visualize the algorithms
 
@@ -242,7 +242,6 @@ def heap_sort(arr):
 
 # * ############## Algorithms for searching ##############
 
-# TODO: list search: linear search, binary search, hash search,
 
 #linear search
 
@@ -257,6 +256,7 @@ def linear_search(arr, x):
             return index
     return -1
 
+# binary search
 def binary_search(arr, x):
     """
     The binary search algorithm is a divide and conquer algorithm that splits the input into two halves, sorts them separately, and then merges them. 
@@ -274,6 +274,30 @@ def binary_search(arr, x):
         else:
             high = mid - 1
     return -1
+
+
+# hash search
+def hash_search(arr, x):
+    """
+    The hash search algorithm uses a hash table to store the elements of the list for quick lookup.
+    """
+    # Create a hash table
+    hash_table = {}
+    # Populate the hash table with elements from the array
+    for index, value in enumerate(arr):
+        hash_table[value] = index
+
+    # Search for the item using the hash table
+    if x in hash_table:
+        return hash_table[x]
+    else:
+        return -1
+    
+
+
+#* ############## Algorithms for graphs ##############
+# TODO: graph search: breadth-first search, depth-first search, bellman-ford, dijkstra, A* algorithm
+
 
 
 
